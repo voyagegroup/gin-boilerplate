@@ -110,7 +110,7 @@ export default class TodoBox extends React.Component {
 
         const completedCount = todos.length - activeTodoCount;
 
-        var footer;
+        let footer = null;
         if (activeTodoCount || completedCount) {
             footer =
                 <TodoFooter
@@ -122,7 +122,7 @@ export default class TodoBox extends React.Component {
                 />;
         }
 
-        var main;
+        let main = null;
         if (todos.length) {
             main = (
                 <section id="main">
