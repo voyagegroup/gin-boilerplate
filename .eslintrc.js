@@ -18,7 +18,6 @@ module.exports = {
     globals: {},
     rules: {
         'no-console': 0,
-        'react/no-danger': 0,
         'react/prop-types': 1
     }
 };
