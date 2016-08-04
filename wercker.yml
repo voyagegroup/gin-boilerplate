@@ -1,0 +1,59 @@
+box: golang
+
+build:
+  steps:
+    - setup-go-workspace
+
+    # TODO fix build step codes. 
+    #- script:
+    #    name: go build
+    #    code: |
+    #      cd app/
+    #      go build
+
+    - script:
+        name: copy whole repo contents and built binary.
+        code: |
+          cp -ar ./ ${WERCKER_OUTPUT_DIR}
+
+deploy:
+  steps:
+    - script:
+        name: deploy info
+        code: |
+          env
+          find .
+
+    - script:
+        name: archive
+        code: |
+          FILE_DATE=$(date +"%Y%m%d_%H%M")
+          FILE_NAME=${FILE_DATE}_${WERCKER_GIT_COMMIT}.tar.gz
+          tar zcvf $FILE_NAME *
+          mkdir artifact
+          mv $FILE_NAME artifact
+
+    - s3sync:
+        key-id: $AWS_ACCESS_KEY_ID
+        key-secret: $AWS_SECRET_ACCESS_KEY
+        bucket-url: s3://$AWS_BUCKET_NAME/$AWS_BUCKET_PATH
+        source-dir: artifact/
+        delete-removed: false
+
+    - script:
+        name: install awscli
+        code: |
+          python --version
+          which python
+          wget https://bootstrap.pypa.io/get-pip.py
+          python get-pip.py
+          sudo pip install awscli
+  
+    - script:
+        name: CodeDeploy
+        code: |
+          aws deploy create-deployment \
+           --application-name $CODE_DEPLOY_APPLICATION_NAME \
+           --deployment-group-name $CODE_DEPLOY_DEPLOYMENT_GROUP_NAME \
+           --s3-location bucket=$AWS_BUCKET_NAME,key=$AWS_BUCKET_PATH$FILE_NAME,bundleType=tgz \
+           --region ap-northeast-1
