@@ -100,7 +100,7 @@ export default class TodoModel {
         if (resp.status == code) {
             return resp
         } else {
-            var error = new Error(resp.statusText)
+            const error = new Error(resp.statusText)
             error.resp = resp
             throw error
         }

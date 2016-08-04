@@ -6,7 +6,7 @@ import TodoModel from './app/TodoModel';
 require("babel-polyfill");
 require('whatwg-fetch');
 
-var model = new TodoModel();
+const model = new TodoModel();
 function r(){
     ReactDOM.render(<TodoBox model={model} url="/api/todos" pollInterval={5000} />, document.getElementById('app'));
 }

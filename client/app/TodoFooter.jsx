@@ -22,8 +22,8 @@ export default class TodoFooter extends React.Component {
     }
 
     render() {
-        var activeTodoWord = this.pluralize(this.props.count, 'item');
-        var clearButton = null;
+        const activeTodoWord = this.pluralize(this.props.count, 'item');
+        let clearButton = null;
 
         if (this.props.completedCount > 0) {
             clearButton = (
@@ -35,7 +35,7 @@ export default class TodoFooter extends React.Component {
             );
         }
 
-        var nowShowing = this.props.nowShowing;
+        const nowShowing = this.props.nowShowing;
         return (
             <footer id="footer">
                 <span id="todo-count">
