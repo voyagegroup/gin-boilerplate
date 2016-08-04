@@ -4,12 +4,21 @@ build:
   steps:
     - setup-go-workspace
 
-    # TODO fix build step codes. 
-    #- script:
-    #    name: go build
-    #    code: |
-    #      cd app/
-    #      go build
+    - script:
+        name: make deps
+        code: make deps
+
+    - script:
+        name: test
+        code: make test
+
+    - script:
+        name: go build
+        code: godep go build cmd/base.go
+
+    - script:
+        name: npm build
+        code: make build
 
     - script:
         name: copy whole repo contents and built binary.
