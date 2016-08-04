@@ -3,7 +3,13 @@ module.exports = {
         "eslint:recommended",
         "plugin:react/recommended"
     ],
-    parser: 'babel-eslint',
+    parserOptions: {
+        ecmaVersion: 6,
+        sourceType: 'module',
+        ecmaFeatures: {
+            'jsx': true
+        },
+    },
     env: {
         es6: true,
         browser: true
@@ -11,10 +17,6 @@ module.exports = {
     plugins: [
         "react"
     ],
-    ecmaFeatures: {
-        jsx: true,
-        modules: true
-    },
     globals: {},
     rules: {
         'no-console': 0,
