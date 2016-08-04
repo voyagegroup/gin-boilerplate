@@ -45,9 +45,12 @@ $ make watch
 
 開発環境であれば、マイグレーションをする前にデータベースの作成が必要です。以下のようにするとデータベースを作成することができます。デフォルトではデータベース `treasure` を作成します。
 
-    make migrate/init
-    # インテグレーションテスト用のDBを作成するには以下のようにします
-    make migrate/init DBNAME=test-treasure
+```sh
+$ make migrate/init
+
+# インテグレーションテスト用のDBを作成するには以下のようにします
+$ make migrate/init DBNAME=test-treasure
+```
 
 パスワードをプロンプトで聞かれます。適宜パスワードを答えてください。後述するDocker環境であればデフォルトパスワードは `password` です。
 
@@ -55,22 +58,28 @@ $ make watch
 
 次にマイグレーションを実行します。
 
-    # マイグレーションを実際には実行しないが適用されるであろうマイグレーションをプレビューすることができます
-    make migrate/dry
-    # マイグレーションを実行します
-    make migrate/up
-    # テストデータベースについて実行する場合にはENVを指定します
-    make migrate/up ENV=test
+```sh
+# マイグレーションを実際には実行しないが適用されるであろうマイグレーションをプレビューすることができます
+$ make migrate/dry
+
+# マイグレーションを実行します
+$ make migrate/up
+
+# テストデータベースについて実行する場合にはENVを指定します
+$ make migrate/up ENV=test
+```
 
 マイグレーションを実行したあとに現在のデータベースの状態を確認するには以下のようにします。
 
-    $ make migrate/status
-    sql-migrate status
-    +------------+-------------------------------+
-    | MIGRATION  |            APPLIED            |
-    +------------+-------------------------------+
-    | 1_init.sql | 2016-07-21 05:18:52 +0000 UTC |
-    +------------+-------------------------------+
+```sh
+$ make migrate/status
+sql-migrate status
++------------+-------------------------------+
+| MIGRATION  |            APPLIED            |
++------------+-------------------------------+
+| 1_init.sql | 2016-07-21 05:18:52 +0000 UTC |
++------------+-------------------------------+
+```
 
 マイグレーションには [rubenv/sql-migrate](https://github.com/rubenv/sql-migrate) を利用しています。詳しくはそちらをみるとよいでしょう。
 
@@ -82,11 +91,15 @@ MySQLをDockerで用意するようにしています。開発用に使う際に
 
 開発用Docker環境を立ち上げるには以下のようにします。まずイメージをbuildします。
 
-    make docker/build
+```sh
+$ make docker/build
+```
 
 [Dockerfile]() の内容を変更しないのであればbuildは一度だけしておけばよいでしょう。あとは以下のようにしてcontainerをスタートできます。
 
-    make docker/start
+```sh
+make docker/start
+```
 
 コンテナに関する設定は [docker-compose.yml]() にまとめています。
 
