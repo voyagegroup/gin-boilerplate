@@ -1,6 +1,6 @@
 box: golang
 
-deps:
+build:
   steps:
     - setup-go-workspace
 
@@ -8,14 +8,10 @@ deps:
         name: make deps
         code: make deps
 
-test:
-  steps:
     - script:
-      name: test
-      code: make test
+        name: test
+        code: make test
 
-build:
-  steps:
     - script:
         name: go build
         code: godep go build cmd/base.go
