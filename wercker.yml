@@ -1,4 +1,4 @@
-box: golang
+box: suzuken/go-node:latest
 
 build:
   steps:
