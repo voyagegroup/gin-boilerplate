@@ -28,9 +28,8 @@ build:
 deploy:
   steps:
     - script:
-        name: deploy info
+        name: show archive targets
         code: |
-          env
           find .
 
     - script:
