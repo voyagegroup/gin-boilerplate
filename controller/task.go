@@ -3,7 +3,6 @@ package controller
 import (
 	"net/http"
 
-	csrf "github.com/utrack/gin-csrf"
 	"github.com/voyagegroup/gin-boilerplate/model"
 
 	"github.com/gin-gonic/gin"
