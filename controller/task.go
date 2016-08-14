@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/voyagegroup/gin-boilerplate/model"
@@ -18,7 +19,7 @@ type Todo struct {
 func (t *Todo) Get(c *gin.Context) {
 	todos, err := model.TodosAll(t.DB)
 	if err != nil {
-		c.String(500, "%s", err)
+		c.JSON(500, gin.H{"err": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, todos)
@@ -31,30 +32,18 @@ func (t *Todo) Post(c *gin.Context) {
 		return
 	}
 
-	tx, err := t.DB.Beginx()
-	if err != nil {
-		c.JSON(500, gin.H{"err": err.Error()})
-		return
-	}
-	defer func() {
-		if err := recover(); err != nil {
-			tx.Rollback()
-			return
+	TXHandler(c, t.DB, func(tx *sqlx.Tx) error {
+		result, err := todo.Update(tx)
+		if err != nil {
+			return err
 		}
-		tx.Commit()
-	}()
+		if err := tx.Commit(); err != nil {
+			return err
+		}
+		todo.ID, err = result.LastInsertId()
+		return err
+	})
 
-	result, err := todo.Update(tx)
-	if err != nil {
-		c.JSON(500, gin.H{"err": err.Error()})
-		return
-	}
-	id, err := result.LastInsertId()
-	if err != nil {
-		c.JSON(500, gin.H{"err": err.Error()})
-		return
-	}
-	todo.ID = id
 	c.JSON(http.StatusOK, todo)
 }
 
@@ -67,30 +56,18 @@ func (t *Todo) Put(c *gin.Context) {
 		return
 	}
 
-	tx, err := t.DB.Beginx()
-	if err != nil {
-		c.JSON(500, gin.H{"err": err.Error()})
-		return
-	}
-	defer func() {
-		if err := recover(); err != nil {
-			tx.Rollback()
-			return
+	TXHandler(c, t.DB, func(tx *sqlx.Tx) error {
+		result, err := todo.Insert(tx)
+		if err != nil {
+			return err
 		}
-		tx.Commit()
-	}()
+		if err := tx.Commit(); err != nil {
+			return err
+		}
+		todo.ID, err = result.LastInsertId()
+		return err
+	})
 
-	result, err := todo.Insert(tx)
-	if err != nil {
-		c.JSON(500, gin.H{"err": err.Error()})
-		return
-	}
-	id, err := result.LastInsertId()
-	if err != nil {
-		c.JSON(500, gin.H{"err": err.Error()})
-		return
-	}
-	todo.ID = id
 	c.JSON(http.StatusCreated, todo)
 	return
 }
@@ -102,23 +79,14 @@ func (t *Todo) Delete(c *gin.Context) {
 		return
 	}
 
-	tx, err := t.DB.Beginx()
-	if err != nil {
-		c.JSON(500, gin.H{"err": err.Error()})
-		return
-	}
-	defer func() {
-		if err := recover(); err != nil {
-			tx.Rollback()
-			return
+	TXHandler(c, t.DB, func(tx *sqlx.Tx) error {
+		_, err := todo.Delete(tx)
+		if err != nil {
+			return err
 		}
-		tx.Commit()
-	}()
+		return tx.Commit()
+	})
 
-	if _, err := todo.Delete(tx); err != nil {
-		c.JSON(500, gin.H{"err": err.Error()})
-		return
-	}
 	c.Status(http.StatusOK)
 }
 
@@ -129,25 +97,15 @@ func (t *Todo) DeleteMulti(c *gin.Context) {
 		return
 	}
 
-	tx, err := t.DB.Beginx()
-	if err != nil {
-		c.JSON(500, gin.H{"err": err.Error()})
-		return
-	}
-	defer func() {
-		if err := recover(); err != nil {
-			tx.Rollback()
-			return
+	TXHandler(c, t.DB, func(tx *sqlx.Tx) error {
+		for _, todo := range todos {
+			if _, err := todo.Delete(tx); err != nil {
+				return err
+			}
 		}
-	}()
+		return tx.Commit()
+	})
 
-	for _, todo := range todos {
-		if _, err := todo.Delete(tx); err != nil {
-			c.JSON(500, gin.H{"err": err.Error()})
-			return
-		}
-	}
-	tx.Commit()
 	c.Status(http.StatusOK)
 }
 
@@ -158,31 +116,21 @@ func (t *Todo) Toggle(c *gin.Context) {
 		return
 	}
 
-	tx, err := t.DB.Beginx()
-	if err != nil {
-		c.JSON(500, gin.H{"err": err.Error()})
-		return
-	}
-	defer func() {
-		if err := recover(); err != nil {
-			tx.Rollback()
-			return
+	TXHandler(c, t.DB, func(tx *sqlx.Tx) error {
+		result, err := todo.Toggle(tx)
+		if err != nil {
+			return err
 		}
-		tx.Commit()
-	}()
-
-	result, err := todo.Toggle(tx)
-	if err != nil {
-		c.JSON(500, gin.H{"err": err.Error()})
-		return
-	}
-	if n, err := result.RowsAffected(); err != nil {
-		c.JSON(500, gin.H{"err": err.Error()})
-		return
-	} else if n != 1 {
-		c.JSON(500, gin.H{"err": "update failed"})
-		return
-	}
+		if err := tx.Commit(); err != nil {
+			return err
+		}
+		if n, err := result.RowsAffected(); err != nil {
+			return err
+		} else if n != 1 {
+			return errors.New("no rows updated")
+		}
+		return nil
+	})
 	c.Status(http.StatusOK)
 }
 
@@ -195,22 +143,12 @@ func (t *Todo) ToggleAll(c *gin.Context) {
 		return
 	}
 
-	tx, err := t.DB.Beginx()
-	if err != nil {
-		c.JSON(500, gin.H{"err": err.Error()})
-		return
-	}
-	defer func() {
-		if err := recover(); err != nil {
-			tx.Rollback()
-			return
+	TXHandler(c, t.DB, func(tx *sqlx.Tx) error {
+		if _, err := model.TodosToggleAll(tx, req.Checked); err != nil {
+			return err
 		}
-		tx.Commit()
-	}()
+		return tx.Commit()
+	})
 
-	if _, err := model.TodosToggleAll(tx, req.Checked); err != nil {
-		c.JSON(500, gin.H{"err": err.Error()})
-		return
-	}
 	c.Status(http.StatusOK)
 }
