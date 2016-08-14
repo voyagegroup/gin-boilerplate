@@ -159,7 +159,6 @@ export default class TodoBox extends React.Component {
 }
 
 TodoBox.propTypes = {
-    url: React.PropTypes.string,
     pollInterval: React.PropTypes.number,
     nowShowing: React.PropTypes.string,
     model: React.PropTypes.instanceOf(TodoModel)

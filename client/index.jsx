@@ -8,6 +8,6 @@ require('whatwg-fetch');
 
 const model = new TodoModel();
 function r(){
-    ReactDOM.render(<TodoBox model={model} url="/api/todos" pollInterval={5000} />, document.getElementById('app'));
+    ReactDOM.render(<TodoBox model={model} pollInterval={5000} />, document.getElementById('app'));
 }
 model.subscribe(r);

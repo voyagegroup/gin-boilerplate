@@ -7,8 +7,10 @@ import (
 	"github.com/voyagegroup/gin-boilerplate/controller"
 	"github.com/voyagegroup/gin-boilerplate/db"
 
+	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
+	csrf "github.com/utrack/gin-csrf"
 )
 
 // Serverはベースアプリケーションのserverを示します
@@ -34,6 +36,17 @@ func (s *Server) Init(dbconf, env string) {
 		log.Fatalf("db initialization failed: %s", err)
 	}
 	s.dbx = dbx
+
+	store := sessions.NewCookieStore([]byte("secret"))
+	s.Engine.Use(sessions.Sessions("todosession", store))
+	s.Engine.Use(csrf.Middleware(csrf.Options{
+		Secret: "secret",
+		ErrorFunc: func(c *gin.Context) {
+			c.JSON(400, gin.H{"error": "CSRF token mismach"})
+			c.Abort()
+		},
+	}))
+
 	s.Route()
 }
 
@@ -55,6 +68,11 @@ func (s *Server) Route() {
 	// TODO opsチームとnginxからのhealthcheck用のendpointについてあわせておく
 	s.Engine.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "%s", "pong")
+	})
+	s.Engine.GET("/token", func(c *gin.Context) {
+		c.JSON(http.StatusOK, map[string]string{
+			"token": csrf.GetToken(c),
+		})
 	})
 
 	todo := &controller.Todo{DB: s.dbx}
