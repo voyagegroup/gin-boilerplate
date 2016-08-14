@@ -2,6 +2,7 @@ export default class TodoModel {
     constructor() {
         this.onChanges = [];
         this.todos = [];
+        this.token = this.fetchToken();
     }
 
     subscribe(onChange) {
@@ -13,8 +14,22 @@ export default class TodoModel {
         this.onChanges.forEach(cb => cb());
     }
 
+    fetchToken() {
+        fetch('/token', {credentials: 'same-origin'})
+        .then(x => x.json())
+        .then(json => {
+            if (json == null) {
+                return;
+            }
+            this.token = json.token;
+        })
+        .catch(err => {
+            console.error('fetch error', err);
+        });
+    }
+
     load() {
-        fetch('/api/todos')
+        fetch('/api/todos', {credentials: 'same-origin'})
         .then(x => x.json())
         .then(json => {
             if (json == null) {
@@ -35,10 +50,12 @@ export default class TodoModel {
         };
 
         fetch('/api/todos', {
+            credentials: 'same-origin',
             method: 'PUT',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': this.token
             },
             body: JSON.stringify(todo)
         })
@@ -54,10 +71,12 @@ export default class TodoModel {
 
     toggleAll(checked) {
         fetch('/api/todos/toggleall', {
+            credentials: 'same-origin',
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': this.token
             },
             body: JSON.stringify({checked: checked})
         })
@@ -75,10 +94,12 @@ export default class TodoModel {
 
     toggle(todoToToggle) {
         fetch('/api/todos/toggle', {
+            credentials: 'same-origin',
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': this.token
             },
             body: JSON.stringify(todoToToggle)
         })
@@ -108,10 +129,12 @@ export default class TodoModel {
 
     destroy(todo) {
         fetch('/api/todos', {
+            credentials: 'same-origin',
             method: 'DELETE',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': this.token
             },
             body: JSON.stringify(todo)
         })
@@ -131,10 +154,12 @@ export default class TodoModel {
         const toSave = Object.assign({}, todoToSave, {title: text});
 
         fetch('/api/todos', {
+            credentials: 'same-origin',
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': this.token
             },
             body: JSON.stringify(toSave)
         })
@@ -156,10 +181,12 @@ export default class TodoModel {
         });
 
         fetch('/api/todos/multi', {
+            credentials: 'same-origin',
             method: 'DELETE',
             headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': this.token
             },
             body: JSON.stringify(todosToDelete)
         })
