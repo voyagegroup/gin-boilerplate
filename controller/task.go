@@ -25,7 +25,7 @@ func (t *Todo) Get(c *gin.Context) {
 	c.JSON(http.StatusOK, todos)
 }
 
-func (t *Todo) Post(c *gin.Context) {
+func (t *Todo) Put(c *gin.Context) {
 	var todo model.Todo
 	if err := c.BindJSON(&todo); err != nil {
 		c.JSON(500, gin.H{"err": err.Error()})
@@ -47,9 +47,9 @@ func (t *Todo) Post(c *gin.Context) {
 	c.JSON(http.StatusOK, todo)
 }
 
-// PutはタスクをDBに追加します
+// PostはタスクをDBに追加します
 // todoをJSONとして受け取ることを想定しています。
-func (t *Todo) Put(c *gin.Context) {
+func (t *Todo) Post(c *gin.Context) {
 	var todo model.Todo
 	if err := c.BindJSON(&todo); err != nil {
 		c.JSON(500, gin.H{"err": err.Error()})
