@@ -51,7 +51,7 @@ export default class TodoModel {
 
         fetch('/api/todos', {
             credentials: 'same-origin',
-            method: 'PUT',
+            method: 'POST',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
@@ -155,7 +155,7 @@ export default class TodoModel {
 
         fetch('/api/todos', {
             credentials: 'same-origin',
-            method: 'POST',
+            method: 'PUT',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
